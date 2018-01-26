@@ -31,7 +31,7 @@ class GetPremiumFeatures extends Widget
 
     public static function configure(WidgetConfig $config)
     {
-        $config->setCategoryId('About Piwik');
+        $config->setCategoryId('About Matomo');
         $config->setName(Piwik::translate('Marketplace_PaidPlugins'));
         $config->setOrder(20);
     }
@@ -41,6 +41,10 @@ class GetPremiumFeatures extends Widget
         $template = 'getPremiumFeatures';
 
         $plugins = $this->marketplaceApiClient->searchForPlugins('', '', Sort::METHOD_LAST_UPDATED, PurchaseType::TYPE_PAID);
+
+        $plugins = array_filter($plugins, function ($plugin) {
+            return empty($plugin['isBundle']);
+        });
 
         if (empty($plugins)) {
             $plugins = array();

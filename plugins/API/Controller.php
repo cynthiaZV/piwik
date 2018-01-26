@@ -52,7 +52,7 @@ class Controller extends \Piwik\Plugin\Controller
         Piwik::checkUserHasSomeViewAccess();
 
         $ApiDocumentation = new DocumentationGenerator();
-        $prefixUrls = Common::getRequestVar('prefixUrl', 'http://demo.piwik.org/', 'string');
+        $prefixUrls = Common::getRequestVar('prefixUrl', 'https://demo.matomo.org/', 'string');
         if (!UrlHelper::isLookLikeUrl($prefixUrls) || strpos($prefixUrls, 'http') !== 0) {
             $prefixUrls = '';
         }
@@ -153,8 +153,8 @@ class Controller extends \Piwik\Plugin\Controller
         Piwik::checkUserHasSomeViewAccess();
 
         return $this->renderTemplate('glossary', array(
-            'reports' => Request::processRequest('API', array('method' => 'API.getGlossaryReports')),
-            'metrics' => Request::processRequest('API', array('method' => 'API.getGlossaryMetrics')),
+            'reports' => Request::processRequest('API', array('method' => 'API.getGlossaryReports', 'filter_limit' => -1)),
+            'metrics' => Request::processRequest('API', array('method' => 'API.getGlossaryMetrics', 'filter_limit' => -1)),
         ));
     }
 }

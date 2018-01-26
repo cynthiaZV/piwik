@@ -12,8 +12,10 @@ use Piwik\ArchiveProcessor\Parameters;
 use Piwik\Common;
 use Piwik\Container\StaticContainer;
 use Piwik\DataArray;
+use Piwik\Date;
 use Piwik\Db;
 use Piwik\Metrics;
+use Piwik\Period;
 use Piwik\Tracker\GoalManager;
 use Psr\Log\LoggerInterface;
 
@@ -155,11 +157,16 @@ class LogAggregator
      */
     public function __construct(Parameters $params, LoggerInterface $logger = null)
     {
-        $this->dateStart = $params->getDateStart();
-        $this->dateEnd = $params->getDateEnd();
+        $this->dateStart = $params->getDateTimeStart();
+        $this->dateEnd = $params->getDateTimeEnd();
         $this->segment = $params->getSegment();
         $this->sites = $params->getIdSites();
         $this->logger = $logger ?: StaticContainer::get('Psr\Log\LoggerInterface');
+    }
+
+    public function getSegment()
+    {
+        return $this->segment;
     }
 
     public function setQueryOriginHint($nameOfOrigiin)
@@ -178,8 +185,8 @@ class LogAggregator
             $query['sql'] = 'SELECT /* ' . $this->queryOriginHint . ' */' . substr($query['sql'], strlen($select));
         }
 
-	// Uncomment to log on DEBUG level all archiving queries
-        // $this->logger->debug($query['sql']);
+	// Log on DEBUG level all SQL archiving queries
+        $this->logger->debug($query['sql']);
 
         return $query;
     }
@@ -513,9 +520,9 @@ class LogAggregator
      *
      * @return array
      */
-    protected function getGeneralQueryBindParams()
+    public function getGeneralQueryBindParams()
     {
-        $bind = array($this->dateStart->getDateStartUTC(), $this->dateEnd->getDateEndUTC());
+        $bind = array($this->dateStart->toString(Date::DATE_TIME_FORMAT), $this->dateEnd->toString(Date::DATE_TIME_FORMAT));
         $bind = array_merge($bind, $this->sites);
 
         return $bind;

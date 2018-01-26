@@ -420,8 +420,8 @@ function setupContentTrackingFixture(name, targetNode) {
   <div id="clickDiv"></div>
  </div>
  <map name="map">
-     <area id="area1" shape="rect" coords="0,0,10,10" href="img.jpg" alt="Piwik">
-     <area shape="circle" coords="10,10,10,20" href="img2.jpg" alt="Piwik2">
+     <area id="area1" shape="rect" coords="0,0,10,10" href="img.jpg" alt="Matomo">
+     <area shape="circle" coords="10,10,10,20" href="img2.jpg" alt="Matomo2">
  </map>
 
  <ol id="qunit-tests"></ol>
@@ -2104,7 +2104,7 @@ function PiwikTest() {
     });
 
     test("API methods", function() {
-        expect(88);
+        expect(89);
 
         equal( typeof Piwik.addPlugin, 'function', 'addPlugin' );
         equal( typeof Piwik.addPlugin, 'function', 'addTracker' );
@@ -2168,6 +2168,7 @@ function PiwikTest() {
         equal( typeof tracker.setCookieDomain, 'function', 'setCookieDomain' );
         equal( typeof tracker.setCookiePath, 'function', 'setCookiePath' );
         equal( typeof tracker.setSessionCookie, 'function', 'setSessionCookie' );
+        equal( typeof tracker.setSecureCookie, 'function', 'setSecureCookie' );
         equal( typeof tracker.getCookie, 'function', 'getCookie' );
         equal( typeof tracker.hasCookies, 'function', 'hasCookies' );
         equal( typeof tracker.getCookiePath, 'function', 'getCookiePath' );
@@ -2266,7 +2267,7 @@ function PiwikTest() {
     });
 
     test("Managing multiple trackers", function() {
-        expect(23);
+        expect(25);
 
         var asyncTracker = Piwik.getAsyncTracker();
         var i, tracker;
@@ -2321,6 +2322,10 @@ function PiwikTest() {
         var fetchedTracker = Piwik.getAsyncTracker('customTrackerUrl', '71');
         var createdTracker = fetchedTracker.addTracker(null, 55);
         equal('customTrackerUrl', createdTracker.getTrackerUrl(), 'addTracker() should be default use tracker url of current tracker, not first tracker');
+
+        var createPiwikTracker = Piwik.addTracker('customTrackerUrl2', 59);
+        equal(59, createPiwikTracker.getSiteId(), 'Piwik.addTracker() was created with correct idsite ' + createPiwikTracker.getSiteId());
+        equal('customTrackerUrl2', createPiwikTracker.getTrackerUrl(), 'Piwik.addTracker() was created with correct piwikUrl ' + createPiwikTracker.getTrackerUrl());
 
         asyncTracker.removeAllAsyncTrackersButFirst();
     });
@@ -2977,15 +2982,6 @@ function PiwikTest() {
             expectedValue = String(Math.random());
         tracker.hook.test._setCookie( cookieName, expectedValue );
         equal( tracker.hook.test._getCookie( cookieName ), expectedValue, 'getCookie(), setCookie()' );
-    });
-
-    test("Tracker setSecureCookie(), isSecureCookie()", function() {
-        expect(1);
-
-        var tracker = Piwik.getTracker();
-
-        tracker.hook.test._setSecureCookie(1);
-        equal( tracker.hook.test._isSecureCookie(), 1);
     });
 
     test("Tracker getCookieName() contains website ID", function() {

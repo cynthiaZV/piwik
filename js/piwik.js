@@ -3,9 +3,9 @@
  *
  * JavaScript tracking client
  *
- * @link http://piwik.org
+ * @link https://piwik.org
  * @source https://github.com/piwik/piwik/blob/master/js/piwik.js
- * @license http://piwik.org/free-software/bsd/ BSD-3 Clause (also in js/LICENSE.txt)
+ * @license https://piwik.org/free-software/bsd/ BSD-3 Clause (also in js/LICENSE.txt)
  * @license magnet:?xt=urn:btih:c80d50af7d3db9be66a4d0a86db0286e4fd33292&dn=bsd-3-clause.txt BSD-3-Clause
  */
 // NOTE: if you change this above Piwik comment block, you must also change `$byteStart` in js/tracker.php
@@ -986,7 +986,7 @@ if (typeof JSON_PIWIK !== 'object' && typeof window.JSON === 'object' && window.
     setDownloadClasses, setLinkClasses,
     setCampaignNameKey, setCampaignKeywordKey,
     discardHashTag,
-    setCookieNamePrefix, setCookieDomain, setCookiePath, setSecureCookie, isSecureCookie, setVisitorIdCookie, getCookieDomain, hasCookies, setSessionCookie,
+    setCookieNamePrefix, setCookieDomain, setCookiePath, setSecureCookie, setVisitorIdCookie, getCookieDomain, hasCookies, setSessionCookie,
     setVisitorCookieTimeout, setSessionCookieTimeout, setReferralCookieTimeout, getCookie, getCookiePath, getSessionCookieTimeout,
     setConversionAttributionFirstReferrer, tracker, request,
     disablePerformanceTracking, setGenerationTimeMs,
@@ -1235,7 +1235,7 @@ if (typeof window.Piwik !== 'object') {
                             if (context[f]) {
                                 context[f].apply(context, parameterArray);
                             } else {
-                                var message = 'The method \'' + f + '\' was not found in "_paq" variable.  Please have a look at the Piwik tracker documentation: http://developer.piwik.org/api-reference/tracking-javascript';
+                                var message = 'The method \'' + f + '\' was not found in "_paq" variable.  Please have a look at the Piwik tracker documentation: https://developer.piwik.org/api-reference/tracking-javascript';
                                 logConsoleError(message);
 
                                 if (!isPluginTrackerCall) {
@@ -3105,6 +3105,9 @@ if (typeof window.Piwik !== 'object') {
                 // Default is user agent defined.
                 configCookiePath,
 
+                // Whether to use "Secure" cookies that only work over SSL
+                configCookieIsSecure = false,
+
                 // First-party cookies are disabled
                 configCookiesDisabled = false,
 
@@ -3202,9 +3205,7 @@ if (typeof window.Piwik !== 'object') {
                 // pageview was already tracked or not
                 numTrackedPageviews = 0,
 
-                configCookiesToDelete = ['id', 'ses', 'cvar', 'ref'],
-
-                secureCookie = false;
+                configCookiesToDelete = ['id', 'ses', 'cvar', 'ref'];
 
             // Document title
             try {
@@ -3216,7 +3217,7 @@ if (typeof window.Piwik !== 'object') {
             /*
              * Set cookie value
              */
-            function setCookie(cookieName, value, msToExpire, path, domain) {
+            function setCookie(cookieName, value, msToExpire, path, domain, isSecure) {
                 if (configCookiesDisabled) {
                     return;
                 }
@@ -3233,21 +3234,7 @@ if (typeof window.Piwik !== 'object') {
                     (msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
                     ';path=' + (path || '/') +
                     (domain ? ';domain=' + domain : '') +
-                    (secureCookie ? ';secure' : '');
-            }
-
-            /*
-             * Set cookie secure flag
-             */
-            function setSecureCookie(value) {
-                secureCookie = !!value;
-            }
-
-            /**
-             * Get secure cookie flag value
-             */
-            function isSecureCookie() {
-                return secureCookie;
+                    (isSecure ? ';secure' : '');
             }
 
             /*
@@ -3998,7 +3985,7 @@ if (typeof window.Piwik !== 'object') {
                     visitorIdCookieValues.lastVisitTs + '.' +
                     visitorIdCookieValues.lastEcommerceOrderTs;
 
-                setCookie(getCookieName('id'), cookieValue, getRemainingVisitorCookieTimeout(), configCookiePath, configCookieDomain);
+                setCookie(getCookieName('id'), cookieValue, getRemainingVisitorCookieTimeout(), configCookiePath, configCookieDomain, configCookieIsSecure);
             }
 
             /*
@@ -4107,7 +4094,7 @@ if (typeof window.Piwik !== 'object') {
              * Creates the session cookie
              */
             function setSessionCookie() {
-                setCookie(getCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+                setCookie(getCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain, configCookieIsSecure);
             }
 
             function generateUniqueId() {
@@ -5456,7 +5443,9 @@ if (typeof window.Piwik !== 'object') {
 
                     // Safari and Opera
                     // IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-                    if (typeof navigator.javaEnabled !== 'unknown' &&
+                    // on Edge navigator.javaEnabled() always returns `true`, so ignore it
+                    if (!((new RegExp('Edge[ /](\\d+[\\.\\d]+)')).test(navigatorAlias.userAgent)) &&
+                            typeof navigator.javaEnabled !== 'unknown' &&
                             isDefined(navigatorAlias.javaEnabled) &&
                             navigatorAlias.javaEnabled()) {
                         browserFeatures.java = '1';
@@ -6412,6 +6401,17 @@ if (typeof window.Piwik !== 'object') {
             };
 
             /**
+             * Enable the Secure cookie flag on all first party cookies.
+             * This should be used when your website is only available under HTTPS
+             * so that all tracking cookies are always sent over secure connection.
+             *
+             * @param bool
+             */
+            this.setSecureCookie = function (enable) {
+                configCookieIsSecure = enable;
+            };
+
+            /**
              * Disables all cookies from being set
              *
              * Existing cookies will be deleted on the next call to track
@@ -7077,7 +7077,7 @@ if (typeof window.Piwik !== 'object') {
                             delete paq[iterator];
 
                             if (appliedMethods[methodName] > 1) {
-                                logConsoleError('The method ' + methodName + ' is registered more than once in "_paq" variable. Only the last call has an effect. Please have a look at the multiple Piwik trackers documentation: http://developer.piwik.org/guides/tracking-javascript-guide#multiple-piwik-trackers');
+                                logConsoleError('The method ' + methodName + ' is registered more than once in "_paq" variable. Only the last call has an effect. Please have a look at the multiple Piwik trackers documentation: https://developer.piwik.org/guides/tracking-javascript-guide#multiple-piwik-trackers');
                             }
 
                             appliedMethods[methodName]++;
@@ -7093,7 +7093,7 @@ if (typeof window.Piwik !== 'object') {
          * Constructor
          ************************************************************/
 
-        var applyFirst = ['addTracker', 'disableCookies', 'setTrackerUrl', 'setAPIUrl', 'enableCrossDomainLinking', 'setCrossDomainLinkingTimeout', 'setCookiePath', 'setCookieDomain', 'setDomains', 'setUserId', 'setSiteId', 'enableLinkTracking', 'setSecureCookie'];
+        var applyFirst = ['addTracker', 'disableCookies', 'setTrackerUrl', 'setAPIUrl', 'enableCrossDomainLinking', 'setCrossDomainLinkingTimeout', 'setSecureCookie', 'setCookiePath', 'setCookieDomain', 'setDomains', 'setUserId', 'setSiteId', 'enableLinkTracking'];
 
         function createFirstTracker(piwikUrl, siteId)
         {
@@ -7280,11 +7280,13 @@ if (typeof window.Piwik !== 'object') {
              * @return Tracker
              */
             addTracker: function (piwikUrl, siteId) {
+                var tracker;
                 if (!asyncTrackers.length) {
-                    createFirstTracker(piwikUrl, siteId);
+                    tracker = createFirstTracker(piwikUrl, siteId);
                 } else {
-                    asyncTrackers[0].addTracker(piwikUrl, siteId);
+                    tracker = asyncTrackers[0].addTracker(piwikUrl, siteId);
                 }
+                return tracker;
             },
 
             /**

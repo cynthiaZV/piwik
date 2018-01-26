@@ -62,6 +62,7 @@ describe("UIIntegrationTest", function () { // TODO: Rename to Piwik?
     });
 
     it("should load dashboard3 correctly", function (done) {
+        this.retries(3);
         expect.screenshot("dashboard3").to.be.captureSelector('.pageWrap', function (page) {
             page.load("?" + urlBase + "#?" + generalParams + "&category=Dashboard_Dashboard&subcategory=3");
         }, done);
@@ -77,6 +78,14 @@ describe("UIIntegrationTest", function () { // TODO: Rename to Piwik?
         expect.screenshot("dashboard5_mobile").to.be.capture(function (page) { // capture with menu
             page.setViewportSize(480, 320);
             page.load("?" + urlBase + "#?" + generalParams + "&category=Dashboard_Dashboard&subcategory=5");
+        }, done);
+    });
+
+    // shortcuts help
+    it("should show shortcut help", function (done) {
+        expect.screenshot("shortcuts").to.be.captureSelector('.modal.open', function (page) {
+            page.load("?" + urlBase + "#?" + generalParams + "&category=Dashboard_Dashboard&subcategory=1");
+            page.sendKeys('body', '?', 100);
         }, done);
     });
 
@@ -96,14 +105,14 @@ describe("UIIntegrationTest", function () { // TODO: Rename to Piwik?
 
     // skipped as phantom seems to crash at this test sometimes
     it.skip('should load visitors > visitor log page correctly', function (done) {
-        this.retries(3);
         expect.screenshot("visitors_visitorlog").to.be.captureSelector('.pageWrap', function (page) {
             page.load("?" + urlBase + "#?" + generalParams + "&category=General_Visitors&subcategory=Live_VisitorLog");
         }, done);
     });
 
-    it('should load visitors with site search > visitor log page correctly', function (done) {
-        this.retries(3);
+    // this test often fails for unknown reasons? 
+    // the visitor log with site search is also currently tested in plugins/Live/tests/UI/expected-ui-screenshots/Live_visitor_log.png
+    it.skip('should load visitors with site search > visitor log page correctly', function (done) {
         expect.screenshot("visitors_with_site_search_visitorlog").to.be.captureSelector('.pageWrap', function (page) {
             page.load("?" + urlBase + "#?" + generalParams + "&category=General_Visitors&subcategory=Live_VisitorLog&period=day&date=2012-01-11");
         }, done);
@@ -613,19 +622,6 @@ describe("UIIntegrationTest", function () { // TODO: Rename to Piwik?
         }, done);
     });
 
-    // CustomAlerts plugin TODO: move to CustomAlerts plugin
-    it('should load the custom alerts list correctly', function (done) {
-        expect.screenshot('customalerts_list').to.be.captureSelector('.pageWrap', function (page) {
-            page.load("?" + generalParams + "&module=CustomAlerts&action=index&idSite=1&period=day&date=yesterday&tests_hide_piwik_version=1");
-        }, done);
-    });
-
-    it('should load the triggered custom alerts list correctly', function (done) {
-        expect.screenshot('customalerts_list_triggered').to.be.captureSelector('.pageWrap', function (page) {
-            page.load("?" + generalParams + "&module=CustomAlerts&action=historyTriggeredAlerts&idSite=1&period=day&date=yesterday&tests_hide_piwik_version=1");
-        }, done);
-    });
-
     // top bar pages
     it('should load the widgets listing page correctly', function (done) {
         expect.screenshot('widgets_listing').to.be.captureSelector('.pageWrap', function (page) {
@@ -672,9 +668,9 @@ describe("UIIntegrationTest", function () { // TODO: Rename to Piwik?
             page.load("?" + generalParams + "&module=Feedback&action=index");
 
             page.evaluate(function () {
-                $('.enrichedHeadline span').each(function () {
-                    if ($(this).text().indexOf("Piwik") !== -1) {
-                        var replace = $(this).text().replace(/Piwik\s*\d+\.\d+(\.\d+)?([\-a-z]*\d+)?/g, 'Piwik');
+                $('.enrichedHeadline .title').each(function () {
+                    if ($(this).text().indexOf("Matomo") !== -1) {
+                        var replace = $(this).text().replace(/Matomo\s*\d+\.\d+(\.\d+)?([\-a-z]*\d+)?/g, 'Matomo');
                         $(this).text(replace);
                     }
                 });

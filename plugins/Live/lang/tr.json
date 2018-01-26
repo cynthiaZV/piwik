@@ -1,5 +1,6 @@
 {
     "Live": {
+        "ClickToViewAllActions": "Bu grubun tüm işlem ayrıntılarını görüntülemek için tıklayın",
         "ConvertedNGoals": "Dönüştürülen %s Hedef",
         "FirstVisit": "İlk ziyaret",
         "GoalType": "Tür",
@@ -17,13 +18,15 @@
         "RealTimeVisitorCount": "Gerçek Zamanlı Ziyaretçi Sayacı",
         "Referrer_URL": "Yönlendirme Siteleri",
         "ShowMap": "haritayı göster",
+        "ActionsAndDuration": "%1$s işlem %2$s içinde",
         "ViewVisitorProfile": "Ziyaretçi profiline bak",
         "VisitedPages": "Ziyaret edilmiş sayfalar",
+        "RevisitedPages": "Sayfalar birden çok kez görüntülendi",
         "VisitorLog": "Ziyaretçi kayıtları",
         "VisitorProfile": "Ziyaretçi Profili",
         "VisitorsInRealTime": "Gerçek Zamanlı Ziyaretçiler",
         "VisitorsLastVisit": "Bu ziyaretçi %s gün önce ziyaret etmiş",
-        "RowActionTooltipTitle": "Bölüm ziyaretçi loglarını aç",
+        "RowActionTooltipTitle": "Dilimlere ayrılmış ziyaretçi günlüğünü aç",
         "OnClickPause": "%s başladı. Durdurmak için basın.",
         "OnClickStart": "%s durduruldu. Başlatmak için basın."
     }
